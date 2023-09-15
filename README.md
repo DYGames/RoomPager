@@ -17,6 +17,19 @@ classDiagram
     RoomPlayer <|-- YoutubeRoomPlayer
 ```
 
+# Docs
+## Adapter<T>
+### createViewHolder(context: Context): T
+- calls when RoomPager is initialized. adpater should provide viewholder instance
+### getItemCount(): Int
+- adpater should returns number of item in data set
+### onRecycle(currentRoomPosition: Int, recycledViewHolders: List<ViewHolder>)
+- calls when recycling is done (user scrolled). usually adapter play/pause video player here.
+### onLoadNextRoom()
+- load next room (video) data from server/local. you can update adapter's data set here.
+
+## Adapter.ViewHolder
+- define each View on RoomPager (usually full-screen video player)
 
 # Demo
 ## [Diggin' Room](https://github.com/woowacourse-teams/2023-diggin-room)
