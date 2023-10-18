@@ -10,8 +10,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io")
     }
 }
 rootProject.name = "RoomPager"
-include ':app'
-include ':RoomPager'
+include(":app")
+include(":RoomPager")
