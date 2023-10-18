@@ -18,7 +18,7 @@ class RoomPager(
     private val roomRecycler: RoomRecycler = RoomRecycler(context, GRID_SIZE)
 
     private var currentRoomPosition: Int = 0
-    var lastPagingOrientation: PagingOrientation = PagingOrientation.VERTICAL
+    private var lastPagingOrientation: PagingOrientation = PagingOrientation.VERTICAL
     var isNextRoomLoadable: Boolean = true
 
     fun setAdapter(adapter: Adapter<Adapter.ViewHolder>) {

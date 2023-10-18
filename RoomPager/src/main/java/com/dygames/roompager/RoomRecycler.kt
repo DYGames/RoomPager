@@ -10,8 +10,7 @@ import com.dygames.roompager.scrollpager.ScrollPager
 
 @SuppressLint("ViewConstructor")
 class RoomRecycler(
-    context: Context,
-    private val gridSize: Int
+    context: Context, private val gridSize: Int
 ) : GridLayout(context) {
 
     private lateinit var adapter: Adapter<Adapter.ViewHolder>
@@ -40,10 +39,9 @@ class RoomRecycler(
         addView(third, start)
         addView(first, calculateCenter())
         addView(second, end)
-        adapter.onRecycle(
+        adapter.onRecycle(scrollPager.pagingOrientation,
             currentRoomPosition,
-            listOf(third, first, second).map { it as Adapter.ViewHolder }
-        )
+            listOf(third, first, second).map { it as Adapter.ViewHolder })
     }
 
     fun recycleNextRooms(scrollPager: ScrollPager, currentRoomPosition: Int) {
@@ -58,10 +56,9 @@ class RoomRecycler(
         addView(second, start)
         addView(third, calculateCenter())
         addView(first, end)
-        adapter.onRecycle(
+        adapter.onRecycle(scrollPager.pagingOrientation,
             currentRoomPosition,
-            listOf(second, third, first).map { it as Adapter.ViewHolder }
-        )
+            listOf(second, third, first).map { it as Adapter.ViewHolder })
     }
 
     fun navigate(scrollPager: ScrollPager, currentRoomPosition: Int) {
@@ -70,10 +67,9 @@ class RoomRecycler(
         val first = getChildAt(start)
         val second = getChildAt(calculateCenter())
         val third = getChildAt(end)
-        adapter.onRecycle(
+        adapter.onRecycle(PagingOrientation.BOTH,
             currentRoomPosition,
-            listOf(first, second, third).map { it as Adapter.ViewHolder }
-        )
+            listOf(first, second, third).map { it as Adapter.ViewHolder })
     }
 
     fun swapOrientation() {
@@ -100,28 +96,23 @@ class RoomRecycler(
         columnCount = gridSize
         rowCount = gridSize
         layoutParams = LinearLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
+            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
         )
     }
 
     private fun initContentView() {
         (0 until gridSize * gridSize).forEach {
-            val view =
-                if (it % gridSize == gridSize / 2) {
-                    (viewHolders[it / gridSize] as View)
-                } else {
-                    View(
-                        context
-                    )
-                }
+            val view = if (it % gridSize == gridSize / 2) {
+                (viewHolders[it / gridSize] as View)
+            } else {
+                View(context)
+            }
             view.layoutParams = LinearLayout.LayoutParams(
-                resources.displayMetrics.widthPixels,
-                resources.displayMetrics.heightPixels
+                resources.displayMetrics.widthPixels, RoomScreen.getScreenHeight(context)
             )
             addView(view)
         }
-        adapter.onRecycle(0, viewHolders)
+        adapter.onRecycle(PagingOrientation.BOTH, 0, viewHolders)
     }
 
     private fun calculateCenter() = (gridSize * gridSize) / 2

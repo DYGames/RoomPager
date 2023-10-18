@@ -2,6 +2,7 @@ package com.dygames.sample
 
 import android.content.Context
 import com.dygames.roompager.Adapter
+import com.dygames.roompager.PagingOrientation
 
 class RoomPagerAdapter(
     private var videoUrls: List<String> = emptyList(), private val loadNextRoom: () -> List<String>
@@ -15,7 +16,9 @@ class RoomPagerAdapter(
     override fun getItemCount(): Int = videoUrls.size
 
     override fun onRecycle(
-        currentRoomPosition: Int, recycledViewHolders: List<Adapter.ViewHolder>
+        pagingOrientation: PagingOrientation,
+        currentRoomPosition: Int,
+        recycledViewHolders: List<Adapter.ViewHolder>
     ) {
         viewHolders = recycledViewHolders.map { it as SampleVideoPlayer }
         lastCurrentRoomPosition = currentRoomPosition
