@@ -19,6 +19,8 @@ class RoomRecycler(
             adapter.createViewHolder(context)
         }
     }
+    private val center = (gridSize * gridSize) / 2
+
 
     fun setAdapter(adapter: Adapter<Adapter.ViewHolder>) {
         this.adapter = adapter
@@ -30,46 +32,42 @@ class RoomRecycler(
     fun recyclePrevRooms(scrollPager: ScrollPager, currentRoomPosition: Int) {
         val start = scrollPager.calculateStartChildPosition(gridSize)
         val end = scrollPager.calculateEndChildPosition(gridSize)
-        val first = getChildAt(start)
-        val second = getChildAt(calculateCenter())
-        val third = getChildAt(end)
-        removeView(first)
-        removeView(second)
-        removeView(third)
-        addView(third, start)
-        addView(first, calculateCenter())
-        addView(second, end)
-        adapter.onRecycle(scrollPager.pagingOrientation,
-            currentRoomPosition,
-            listOf(third, first, second).map { it as Adapter.ViewHolder })
+
+        val positions = listOf(start, center, end)
+        val rooms = listOf(getChildAt(end), getChildAt(start), getChildAt(center))
+
+        recycleRoomByPosition(scrollPager, currentRoomPosition, positions, rooms)
     }
 
     fun recycleNextRooms(scrollPager: ScrollPager, currentRoomPosition: Int) {
         val start = scrollPager.calculateStartChildPosition(gridSize)
         val end = scrollPager.calculateEndChildPosition(gridSize)
-        val first = getChildAt(start)
-        val second = getChildAt(calculateCenter())
-        val third = getChildAt(end)
-        removeView(first)
-        removeView(second)
-        removeView(third)
-        addView(second, start)
-        addView(third, calculateCenter())
-        addView(first, end)
+
+        val positions = listOf(start, center, end)
+        val rooms = listOf(getChildAt(center), getChildAt(end), getChildAt(start))
+
+        recycleRoomByPosition(scrollPager, currentRoomPosition, positions, rooms)
+    }
+
+    private fun recycleRoomByPosition(
+        scrollPager: ScrollPager, currentRoomPosition: Int, positions: List<Int>, rooms: List<View>
+    ) {
+        rooms.forEach { removeView(it) }
+        rooms.forEachIndexed { index, view -> addView(view, positions[index]) }
+
         adapter.onRecycle(scrollPager.pagingOrientation,
             currentRoomPosition,
-            listOf(second, third, first).map { it as Adapter.ViewHolder })
+            rooms.map { it as Adapter.ViewHolder })
     }
 
     fun navigate(scrollPager: ScrollPager, currentRoomPosition: Int) {
         val start = scrollPager.calculateStartChildPosition(gridSize)
         val end = scrollPager.calculateEndChildPosition(gridSize)
-        val first = getChildAt(start)
-        val second = getChildAt(calculateCenter())
-        val third = getChildAt(end)
+        val rooms = listOf(getChildAt(start), getChildAt(center), getChildAt(end))
+
         adapter.onRecycle(PagingOrientation.BOTH,
             currentRoomPosition,
-            listOf(first, second, third).map { it as Adapter.ViewHolder })
+            rooms.map { it as Adapter.ViewHolder })
     }
 
     fun swapOrientation() {
@@ -115,5 +113,4 @@ class RoomRecycler(
         adapter.onRecycle(PagingOrientation.BOTH, 0, viewHolders)
     }
 
-    private fun calculateCenter() = (gridSize * gridSize) / 2
 }
