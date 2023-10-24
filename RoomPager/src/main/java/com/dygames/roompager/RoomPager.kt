@@ -9,17 +9,36 @@ import com.dygames.roompager.scrollpager.ScrollPager
 import com.dygames.roompager.scrollpager.VerticalScrollPager
 
 class RoomPager(
-    context: Context,
-    attributeSet: AttributeSet
+    context: Context, attributeSet: AttributeSet
 ) : FrameLayout(context, attributeSet) {
+
+    private val pageThreshold: Float
+    private val gridSize: Int
+    private val isNextRoomLoadable: Boolean
+    private var currentRoomPosition: Int = 0
+    private var lastPagingOrientation: PagingOrientation = PagingOrientation.VERTICAL
 
     private val verticalScrollPager: VerticalScrollPager = VerticalScrollPager(context)
     private val horizontalScrollPager: HorizontalScrollPager = HorizontalScrollPager(context)
-    private val roomRecycler: RoomRecycler = RoomRecycler(context, GRID_SIZE)
+    private val roomRecycler: RoomRecycler
 
-    private var currentRoomPosition: Int = 0
-    private var lastPagingOrientation: PagingOrientation = PagingOrientation.VERTICAL
-    var isNextRoomLoadable: Boolean = true
+    init {
+        val attrs = context.theme.obtainStyledAttributes(
+            attributeSet, R.styleable.RoomPagerStyle, 0, 0
+        )
+
+        currentRoomPosition = attrs.getInteger(R.styleable.RoomPagerStyle_roomPosition, 0)
+        isNextRoomLoadable = attrs.getBoolean(R.styleable.RoomPagerStyle_isNextRoomLoadable, true)
+        pageThreshold = attrs.getFloat(R.styleable.RoomPagerStyle_pageThreshold, 10.0f)
+        gridSize = attrs.getInteger(R.styleable.RoomPagerStyle_gridSize, 3)
+        setOrientation(
+            PagingOrientation.values()[attrs.getInt(
+                R.styleable.RoomPagerStyle_orientation, 2
+            )]
+        )
+
+        roomRecycler = RoomRecycler(context, gridSize)
+    }
 
     fun setAdapter(adapter: Adapter<Adapter.ViewHolder>) {
         roomRecycler.setAdapter(adapter)
@@ -38,13 +57,7 @@ class RoomPager(
             pagingOrientation == PagingOrientation.BOTH || pagingOrientation == PagingOrientation.VERTICAL
     }
 
-    fun setRoomPosition(position: Int) {
-        currentRoomPosition = position
-    }
-
-    fun setRoomLoadable(isNextRoomLoadable: Boolean) {
-        this.isNextRoomLoadable = isNextRoomLoadable
-    }
+    fun getRoomLoadable() = isNextRoomLoadable
 
     private fun initOrientation() {
         post {
@@ -61,10 +74,9 @@ class RoomPager(
     private fun initVerticalScrollView() {
         initScrollPager(verticalScrollPager)
         isVerticalScrollBarEnabled = false
-        verticalScrollPager.scrollPosition = GRID_SIZE / 2
+        verticalScrollPager.scrollPosition = gridSize / 2
         verticalScrollPager.layoutParams = LinearLayout.LayoutParams(
-            LayoutParams.WRAP_CONTENT,
-            LayoutParams.WRAP_CONTENT
+            LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT
         )
 
         addView(verticalScrollPager)
@@ -72,10 +84,9 @@ class RoomPager(
 
     private fun initHorizontalScrollView() {
         initScrollPager(horizontalScrollPager)
-        horizontalScrollPager.scrollPosition = GRID_SIZE / 2
+        horizontalScrollPager.scrollPosition = gridSize / 2
         horizontalScrollPager.layoutParams = LinearLayout.LayoutParams(
-            LayoutParams.MATCH_PARENT,
-            LayoutParams.WRAP_CONTENT
+            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT
         )
         verticalScrollPager.addView(horizontalScrollPager)
         horizontalScrollPager.addView(roomRecycler)
@@ -87,7 +98,7 @@ class RoomPager(
     }
 
     private fun initScrollMotionEvent(scrollPager: ScrollPager) {
-        val pagingThreshold = (scrollPager.screenSize / PAGE_THRESHOLD)
+        val pagingThreshold = (scrollPager.screenSize / pageThreshold)
         scrollPager.setOnScrollChangeListener { scroll ->
             if (lastPagingOrientation != scrollPager.pagingOrientation) {
                 lastPagingOrientation = scrollPager.pagingOrientation
@@ -143,7 +154,7 @@ class RoomPager(
             roomRecycler.recyclePrevRooms(scrollPager, currentRoomPosition)
             scrollPager.scrollPosition++
             scrollPager.scrollBy(scrollPager.screenSize)
-        } else if (scrollPager.scrollPosition >= GRID_SIZE - 1) {
+        } else if (scrollPager.scrollPosition >= gridSize - 1) {
             roomRecycler.recycleNextRooms(scrollPager, currentRoomPosition)
             scrollPager.scrollPosition--
             scrollPager.scrollBy(-scrollPager.screenSize)
@@ -156,10 +167,5 @@ class RoomPager(
                 scrollPager.scrollPosition * scrollPager.screenSize
             )
         }
-    }
-
-    companion object {
-        private const val GRID_SIZE = 3
-        private const val PAGE_THRESHOLD = 10.0f
     }
 }

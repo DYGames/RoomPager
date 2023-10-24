@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +9,11 @@
     <com.dygames.roompager.RoomPager
         android:id="@+id/main_roomPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        custom:gridSize="3"
+        custom:isNextRoomLoadable="false"
+        custom:orientation="both"
+        custom:pageThreshold="10.0"
+        custom:roomPosition="0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

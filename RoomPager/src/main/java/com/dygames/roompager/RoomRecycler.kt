@@ -21,7 +21,6 @@ class RoomRecycler(
     }
     private val center = (gridSize * gridSize) / 2
 
-
     fun setAdapter(adapter: Adapter<Adapter.ViewHolder>) {
         this.adapter = adapter
 
@@ -65,14 +64,17 @@ class RoomRecycler(
         val end = scrollPager.calculateEndChildPosition(gridSize)
         val rooms = listOf(getChildAt(start), getChildAt(center), getChildAt(end))
 
-        adapter.onRecycle(PagingOrientation.BOTH,
+        adapter.onRecycle(
+            PagingOrientation.BOTH,
             currentRoomPosition,
             rooms.map { it as Adapter.ViewHolder })
     }
 
     fun swapOrientation() {
-        swapView(1, 3)
-        swapView(5, 7)
+        val verticalSpace = gridSize
+        val horizontalSpace = 1
+        swapView(center - verticalSpace, center - horizontalSpace)
+        swapView(center + horizontalSpace, center + verticalSpace)
     }
 
     fun roomSize(): Int = adapter.getItemCount()
